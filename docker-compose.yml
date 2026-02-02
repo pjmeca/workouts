@@ -1,0 +1,31 @@
+services:
+  workouts:
+    image: pjmeca/workouts
+    build: .
+    container_name: workouts
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker-storage/logs:/app/logs
+      - ./docker-storage/storage:/app/storage
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=workouts;Username=workouts;Password=workouts"
+      ImageStorage__BasePath: /app/storage
+
+  postgres:
+    container_name: workouts-postgres
+    image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker-storage/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: workouts
+      POSTGRES_PASSWORD: workouts
+      POSTGRES_DB: workouts
