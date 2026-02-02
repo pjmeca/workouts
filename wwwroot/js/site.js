@@ -193,6 +193,163 @@
 })();
 
 (() => {
+    const modalElement = document.getElementById("exerciseModal");
+    const modalBody = document.getElementById("exerciseModalBody");
+    const modalTitle = document.getElementById("exerciseModalTitle");
+
+    if (!modalElement || !modalBody || !modalTitle || !window.bootstrap) {
+        return;
+    }
+
+    const modal = new bootstrap.Modal(modalElement);
+
+    const initImageCompression = (container) => {
+        const input = container.querySelector("input[data-compress-image]");
+        if (!input) {
+            return;
+        }
+
+        const compressImage = (file, maxSize = 1600, quality = 0.8) =>
+            new Promise((resolve, reject) => {
+                if (!file.type.startsWith("image/")) {
+                    resolve(file);
+                    return;
+                }
+
+                const img = new Image();
+                img.onload = () => {
+                    const ratio = Math.min(1, maxSize / Math.max(img.width, img.height));
+                    const canvas = document.createElement("canvas");
+                    canvas.width = Math.round(img.width * ratio);
+                    canvas.height = Math.round(img.height * ratio);
+                    const ctx = canvas.getContext("2d");
+                    if (!ctx) {
+                        resolve(file);
+                        return;
+                    }
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(
+                        (blob) => {
+                            if (!blob) {
+                                resolve(file);
+                                return;
+                            }
+                            const compressed = new File([blob], file.name, { type: blob.type });
+                            resolve(compressed);
+                        },
+                        "image/jpeg",
+                        quality
+                    );
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+
+        input.addEventListener("change", async () => {
+            const file = input.files && input.files[0];
+            if (!file) {
+                return;
+            }
+
+            try {
+                const compressed = await compressImage(file);
+                if (compressed !== file) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressed);
+                    input.files = dataTransfer.files;
+                }
+            } catch (error) {
+                console.warn("Image compression failed.", error);
+            }
+        });
+    };
+
+    document.addEventListener("click", async (event) => {
+        const trigger = event.target.closest("[data-exercise-modal]");
+        if (!trigger) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const planId = trigger.getAttribute("data-plan-id");
+        const dayId = trigger.getAttribute("data-day-id");
+        const exerciseId = trigger.getAttribute("data-exercise-id");
+
+        if (!planId || !dayId) {
+            return;
+        }
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("handler", "ExerciseForm");
+        url.searchParams.set("planId", planId);
+        url.searchParams.set("dayId", dayId);
+        if (exerciseId) {
+            url.searchParams.set("exerciseId", exerciseId);
+        }
+
+        modalBody.innerHTML = "<p class=\"text-muted\">Loading...</p>";
+        modalTitle.textContent = exerciseId ? "Edit exercise" : "Add exercise";
+        modal.show();
+
+        try {
+            const response = await fetch(url.toString(), {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+            modalBody.innerHTML = await response.text();
+            initImageCompression(modalBody);
+        } catch (error) {
+            modalBody.innerHTML = "<p class=\"text-danger\">Failed to load form.</p>";
+        }
+    });
+
+    modalBody.addEventListener("submit", async (event) => {
+        const form = event.target.closest("form[data-exercise-form]");
+        if (!form) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: formData
+            });
+
+            const contentType = response.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                const result = await response.json();
+                if (result.success) {
+                    modal.hide();
+                    window.location.reload();
+                }
+                return;
+            }
+
+            modalBody.innerHTML = await response.text();
+            initImageCompression(modalBody);
+        } catch (error) {
+            modalBody.innerHTML = "<p class=\"text-danger\">Failed to save exercise.</p>";
+        }
+    });
+})();
+
+(() => {
+    document.addEventListener("keydown", (event) => {
+        const input = event.target.closest("input[type='number'][data-integer-only]");
+        if (!input) {
+            return;
+        }
+
+        if (["e", "E", "+", "-", "."].includes(event.key)) {
+            event.preventDefault();
+        }
+    });
+})();
+
+(() => {
     const list = document.getElementById("dayList");
     const tokenInput = document.querySelector("#dayReorderToken input[name='__RequestVerificationToken']");
 

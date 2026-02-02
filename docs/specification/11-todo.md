@@ -35,13 +35,13 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 - [x] Persist day ordering to database
 
 ## Exercises (CRUD + ordering)
-- [ ] Implement exercise create/edit modal with validation
-- [ ] Upload image from modal (single image now)
-- [ ] Client-side image compression before upload
-- [ ] Save image metadata in DB (original name + GUID file name)
-- [ ] Store image file to disk with configured base path
-- [ ] Delete exercise with confirmation modal
-- [ ] Delete image file from disk on exercise/plan delete
+- [x] Implement exercise create/edit modal with validation
+- [x] Upload image from modal (single image now)
+- [x] Client-side image compression before upload
+- [x] Save image metadata in DB (original name + GUID file name)
+- [x] Store image file to disk with configured base path
+- [x] Delete exercise with confirmation modal
+- [x] Delete image file from disk on exercise/plan delete
 - [ ] Implement exercise ordering (drag & drop + up/down buttons)
 - [ ] Persist exercise ordering to database
 
@@ -69,7 +69,7 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 ## Security & validation
 - [x] Server-side validation for plan create/edit
 - [x] Validation for day forms
-- [ ] Validation for exercise forms
+- [x] Validation for exercise forms
 - [ ] Ensure user scoping for all queries (days/exercises)
 
 ## Documentation
