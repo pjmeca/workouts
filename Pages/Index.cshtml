@@ -1,0 +1,56 @@
+@page
+@model Workouts.Pages.IndexModel
+@{
+    ViewData["Title"] = "Your Plans";
+}
+
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Training plans</h1>
+        <p class="text-muted mb-0">Manage your routines and start a workout.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="/Plans/Create">Create plan</a>
+    </div>
+</div>
+
+@if (!User.Identity?.IsAuthenticated ?? true)
+{
+    <div class="alert alert-info">Please log in to view your plans.</div>
+}
+else if (Model.Plans.Count == 0)
+{
+    <div class="empty-state">
+        <p class="mb-3">You have no plans yet.</p>
+        <a class="btn btn-outline-primary" asp-page="/Plans/Create">Create your first plan</a>
+    </div>
+}
+else
+{
+    <div class="plan-list" id="planList">
+        @foreach (var plan in Model.Plans)
+        {
+            <div class="plan-card" data-plan-id="@plan.Id">
+                <div>
+                    <h2 class="h5 mb-1">
+                        <a class="text-decoration-none" asp-page="/Plans/Details" asp-route-id="@plan.Id">@plan.Name</a>
+                    </h2>
+                    <p class="text-muted mb-0">@plan.Description</p>
+                </div>
+                <div class="plan-actions">
+                    <a class="btn btn-outline-primary" asp-page="/Plans/Play" asp-route-id="@plan.Id" aria-label="Start training">
+                        ▶
+                    </a>
+                    <a class="btn btn-outline-secondary" asp-page="/Plans/Edit" asp-route-id="@plan.Id" aria-label="Edit plan">
+                        ✎
+                    </a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@plan.Id" class="d-inline" id="delete-plan-@plan.Id">
+                        <button class="btn btn-outline-danger" type="button" data-confirm="modal" data-confirm-form="delete-plan-@plan.Id" data-confirm-message="Are you sure you want to delete this plan? This will remove all days, exercises, and images." aria-label="Delete plan">
+                            🗑
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,92 @@
+@page "{id:guid}"
+@model Workouts.Pages.Plans.DetailsModel
+@{
+    ViewData["Title"] = "Plan details";
+}
+
+@if (Model.NotFound)
+{
+    <div class="alert alert-warning">Plan not found.</div>
+}
+else
+{
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+        <div>
+            <h1 class="page-title">@Model.Plan.Name</h1>
+            <p class="text-muted mb-0">@Model.Plan.Description</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" type="button">Add day</button>
+            <a class="btn btn-outline-primary" asp-page="/Index">Back</a>
+        </div>
+    </div>
+
+    @foreach (var day in Model.Plan.Days)
+    {
+        <section class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h2 class="h5 mb-0">@day.Name</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" type="button">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">Delete</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Exercise</th>
+                            <th>Sets</th>
+                            <th>Reps</th>
+                            <th>Rest</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (day.Exercises.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" class="text-muted">No exercises yet.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var exercise in day.Exercises)
+                            {
+                                <tr>
+                                    <td>@exercise.Name</td>
+                                    <td>@exercise.Sets</td>
+                                    <td>@exercise.Repetitions</td>
+                                    <td>@(exercise.RestSeconds ?? 0)s</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#exerciseModal">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger" type="button">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#exerciseModal">Add exercise</button>
+        </section>
+    }
+}
+
+<div class="modal fade" id="exerciseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Exercise</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Exercise form will render here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -48,3 +48,4 @@ This repository will contain a .NET 10 Razor Pages web app for managing training
 
 ## Documentation
 - Keep `docs/specification` aligned with any functional changes.
+- Update the TODO checklist in `docs/specification/11-todo.md` whenever a task is completed or new tasks are added.

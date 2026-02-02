@@ -38,6 +38,7 @@
 
 ### Exercise
 - Id (int)
+- TrainingPlanId (FK, part of composite PK)
 - TrainingDayId (FK, part of composite PK)
 - Name (required)
 - Description (optional)
@@ -63,9 +64,9 @@
 - Unique index on ApplicationUser.Email and UserName.
 - Composite index on TrainingPlan (UserId, OrderIndex).
 - Composite primary key on TrainingDay (TrainingPlanId, Id).
-- Composite primary key on Exercise (TrainingDayId, Id).
+- Composite primary key on Exercise (TrainingPlanId, TrainingDayId, Id).
 - Composite index on TrainingDay (TrainingPlanId, OrderIndex).
-- Composite index on Exercise (TrainingDayId, OrderIndex).
+- Composite index on Exercise (TrainingPlanId, TrainingDayId, OrderIndex).
 - Enforce single primary image per exercise at the application level (and optionally a filtered unique index).
 
 ## Ordering rules

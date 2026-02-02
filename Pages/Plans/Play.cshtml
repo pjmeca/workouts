@@ -1,0 +1,33 @@
+@page "{id:guid}"
+@model Workouts.Pages.Plans.PlayModel
+@{
+    ViewData["Title"] = "Training run";
+}
+
+@if (Model.NotFound)
+{
+    <div class="alert alert-warning">Plan not found.</div>
+}
+else
+{
+    <div class="training-run">
+        <div class="training-header">
+            <h1 class="page-title">@Model.PlanName</h1>
+            <button class="btn btn-outline-danger" type="button" data-confirm="modal" data-confirm-href="/" data-confirm-message="Are you sure you want to abandon this training run?">Abandon</button>
+        </div>
+        <div class="training-stage" id="trainingStage">
+            <div class="training-placeholder">
+                <p class="text-muted">Training run UI will render here.</p>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        window.workouts = window.workouts || {};
+        window.workouts.run = {
+            planId: "@Model.PlanId"
+        };
+    </script>
+}

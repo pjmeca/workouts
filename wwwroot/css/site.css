@@ -1,0 +1,137 @@
+:root {
+    --bg: #f7f3ef;
+    --bg-accent: #f0e8df;
+    --ink: #1c1b1a;
+    --muted: #6b675f;
+    --primary: #1c6b5a;
+    --primary-strong: #155646;
+    --card: #ffffff;
+    --border: #e6ded6;
+    --shadow: 0 12px 30px rgba(28, 27, 26, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.app-body {
+    font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(circle at top, #fff8f2, var(--bg));
+    color: var(--ink);
+    min-height: 100vh;
+}
+
+.app-header {
+    background: var(--bg-accent);
+    border-bottom: 1px solid var(--border);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.page-title {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.plan-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.plan-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: slideUp 0.4s ease;
+}
+
+.plan-card h2 {
+    margin: 0;
+}
+
+.plan-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.card-form {
+    padding: 1.5rem;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.empty-state {
+    padding: 2rem;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px dashed var(--border);
+    text-align: center;
+}
+
+.training-run {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.training-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.training-stage {
+    min-height: 50vh;
+    padding: 2rem;
+    background: var(--card);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: grid;
+    place-items: center;
+}
+
+.btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(28, 27, 26, 0.12);
+}
+
+@media (min-width: 768px) {
+    .plan-card {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .training-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
