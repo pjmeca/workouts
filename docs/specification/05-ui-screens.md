@@ -27,7 +27,8 @@
 - Each exercise row shows key fields and actions: Edit, Delete.
 - Add Day and Add Exercise actions are clearly visible.
 - Exercise creation/editing happens in a modal (no navigation away).
-- Drag and drop ordering for days and exercises, plus Up/Down buttons.
+ - Drag and drop ordering for days, plus Up/Down buttons.
+ - Exercises are ordered with Up/Down buttons only (no drag and drop).
 - Delete actions show confirmation dialogs.
 - Each day has a Play button to start a training run for that day.
 

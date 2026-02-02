@@ -51,6 +51,98 @@
 })();
 
 (() => {
+    const list = document.getElementById("dayList");
+    const tokenInput = document.querySelector("#dayReorderToken input[name='__RequestVerificationToken']");
+
+    if (!list || !tokenInput) {
+        return;
+    }
+
+    const planId = list.getAttribute("data-plan-id");
+    if (!planId) {
+        return;
+    }
+
+    const persistExerciseOrder = async (dayId, tbody) => {
+        const orderedIds = [...tbody.querySelectorAll("tr[data-exercise-id]")]
+            .map((row) => row.getAttribute("data-exercise-id"))
+            .filter(Boolean)
+            .map((value) => Number.parseInt(value, 10))
+            .filter(Number.isFinite);
+
+        if (orderedIds.length === 0) {
+            return;
+        }
+
+        try {
+            const response = await fetch("?handler=ReorderExercises", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": tokenInput.value
+                },
+                body: JSON.stringify({ planId, dayId: Number.parseInt(dayId, 10), orderedIds })
+            });
+
+            if (!response.ok) {
+                console.warn("Failed to reorder exercises.");
+            }
+        } catch (error) {
+            console.warn("Failed to reorder exercises.", error);
+        }
+    };
+
+    list.addEventListener("click", async (event) => {
+        const moveButton = event.target.closest(".exercise-move");
+        if (!moveButton) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const row = moveButton.closest("tr[data-exercise-id]");
+        if (!row) {
+            return;
+        }
+
+        const tbody = row.parentElement;
+        if (!tbody) {
+            return;
+        }
+
+        const dayId = tbody.getAttribute("data-day-id");
+        if (!dayId) {
+            return;
+        }
+
+        const delta = Number.parseInt(moveButton.getAttribute("data-delta") || "0", 10);
+        if (!Number.isFinite(delta) || delta === 0) {
+            return;
+        }
+
+        if (delta < 0) {
+            let prev = row.previousElementSibling;
+            while (prev && !prev.hasAttribute("data-exercise-id")) {
+                prev = prev.previousElementSibling;
+            }
+            if (prev) {
+                tbody.insertBefore(row, prev);
+                await persistExerciseOrder(dayId, tbody);
+            }
+        } else {
+            let next = row.nextElementSibling;
+            while (next && !next.hasAttribute("data-exercise-id")) {
+                next = next.nextElementSibling;
+            }
+            if (next) {
+                tbody.insertBefore(row, next.nextSibling);
+                await persistExerciseOrder(dayId, tbody);
+            }
+        }
+    });
+})();
+
+(() => {
     const list = document.getElementById("planList");
     const tokenInput = document.querySelector("#planReorderToken input[name='__RequestVerificationToken']");
 

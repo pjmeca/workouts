@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Workouts.Data;
 using Workouts.Models;
 
@@ -14,12 +16,21 @@ public class IndexModel : PageModel
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<IndexModel> _logger;
+    private readonly Workouts.Options.ImageStorageOptions _imageOptions;
+    private readonly IWebHostEnvironment _environment;
 
-    public IndexModel(ApplicationDbContext db, UserManager<ApplicationUser> userManager, ILogger<IndexModel> logger)
+    public IndexModel(
+        ApplicationDbContext db,
+        UserManager<ApplicationUser> userManager,
+        ILogger<IndexModel> logger,
+        IOptions<Workouts.Options.ImageStorageOptions> imageOptions,
+        IWebHostEnvironment environment)
     {
         _db = db;
         _userManager = userManager;
         _logger = logger;
+        _imageOptions = imageOptions.Value;
+        _environment = environment;
     }
 
     public List<TrainingPlan> Plans { get; private set; } = new();
@@ -48,11 +59,22 @@ public class IndexModel : PageModel
         }
 
         var plan = await _db.TrainingPlans
+            .Include(p => p.Days)
+            .ThenInclude(d => d.Exercises)
+            .ThenInclude(e => e.Images)
             .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
 
         if (plan == null)
         {
             return RedirectToPage();
+        }
+
+        foreach (var day in plan.Days.ToList())
+        {
+            foreach (var exercise in day.Exercises.ToList())
+            {
+                await DeleteExerciseImagesAsync(exercise);
+            }
         }
 
         _db.TrainingPlans.Remove(plan);
@@ -61,6 +83,92 @@ public class IndexModel : PageModel
         _logger.LogInformation("Deleted training plan {PlanId} for user {UserId}", plan.Id, userId);
 
         return RedirectToPage();
+    }
+
+    private async Task DeleteExerciseImagesAsync(Exercise exercise)
+    {
+        if (exercise.Images.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var image in exercise.Images.ToList())
+        {
+            _db.ExerciseImages.Remove(image);
+            var absolutePath = GetAbsoluteImagePath(image.RelativePath);
+            if (string.IsNullOrWhiteSpace(absolutePath))
+            {
+                continue;
+            }
+
+            if (System.IO.File.Exists(absolutePath))
+            {
+                try
+                {
+                    System.IO.File.Delete(absolutePath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to delete image {ImagePath}", absolutePath);
+                }
+            }
+
+            CleanupEmptyDirectories(Path.GetDirectoryName(absolutePath));
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private string GetAbsoluteImagePath(string relativePath)
+    {
+        var basePath = _imageOptions.BasePath;
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            return string.Empty;
+        }
+
+        var root = Path.IsPathRooted(basePath)
+            ? basePath
+            : Path.Combine(_environment.ContentRootPath, basePath);
+
+        return Path.GetFullPath(Path.Combine(root, relativePath));
+    }
+
+    private void CleanupEmptyDirectories(string? directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory))
+        {
+            return;
+        }
+
+        var root = GetAbsoluteImagePath(string.Empty);
+        if (string.IsNullOrWhiteSpace(root))
+        {
+            return;
+        }
+
+        while (!string.IsNullOrWhiteSpace(directory) && directory.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+        {
+            if (Directory.Exists(directory) && Directory.EnumerateFileSystemEntries(directory).Any())
+            {
+                break;
+            }
+
+            try
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to delete empty directory {Directory}", directory);
+                break;
+            }
+
+            directory = Path.GetDirectoryName(directory);
+        }
     }
 
     public async Task<IActionResult> OnPostMoveAsync(Guid id, int delta)

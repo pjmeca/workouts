@@ -42,8 +42,8 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 - [x] Store image file to disk with configured base path
 - [x] Delete exercise with confirmation modal
 - [x] Delete image file from disk on exercise/plan delete
-- [ ] Implement exercise ordering (drag & drop + up/down buttons)
-- [ ] Persist exercise ordering to database
+- [x] Implement exercise ordering (up/down buttons only)
+- [x] Persist exercise ordering to database
 
 ## Training run (Play mode)
 - [x] Play page scaffold

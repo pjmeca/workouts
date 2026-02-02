@@ -78,6 +78,8 @@ public class DetailsModel : PageModel
 
         var plan = await _db.TrainingPlans
             .Include(p => p.Days)
+            .ThenInclude(d => d.Exercises)
+            .ThenInclude(e => e.Images)
             .FirstOrDefaultAsync(p => p.Id == planId && p.UserId == userId);
 
         if (plan == null)
@@ -89,6 +91,11 @@ public class DetailsModel : PageModel
         if (day == null)
         {
             return RedirectToPage(new { id = planId });
+        }
+
+        foreach (var exercise in day.Exercises.ToList())
+        {
+            await DeleteExerciseImagesAsync(exercise);
         }
 
         _db.TrainingDays.Remove(day);
@@ -211,6 +218,65 @@ public class DetailsModel : PageModel
         await transaction.CommitAsync();
 
         _logger.LogInformation("Reordered {DayCount} days for plan {PlanId} and user {UserId}", plan.Days.Count, plan.Id, userId);
+
+        return new JsonResult(new { success = true });
+    }
+
+    public class ExerciseOrderRequest
+    {
+        public Guid PlanId { get; set; }
+        public int DayId { get; set; }
+        public List<int> OrderedIds { get; set; } = new();
+    }
+
+    public async Task<IActionResult> OnPostReorderExercisesAsync([FromBody] ExerciseOrderRequest request)
+    {
+        if (request.OrderedIds.Count == 0)
+        {
+            return BadRequest();
+        }
+
+        var userId = _userManager.GetUserId(User);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        var day = await _db.TrainingDays
+            .Include(d => d.TrainingPlan)
+            .Include(d => d.Exercises)
+            .FirstOrDefaultAsync(d =>
+                d.TrainingPlanId == request.PlanId &&
+                d.Id == request.DayId &&
+                d.TrainingPlan!.UserId == userId);
+
+        if (day == null)
+        {
+            return NotFound();
+        }
+
+        if (day.Exercises.Count != request.OrderedIds.Count)
+        {
+            return BadRequest();
+        }
+
+        var exerciseMap = day.Exercises.ToDictionary(exercise => exercise.Id, exercise => exercise);
+
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        for (var index = 0; index < request.OrderedIds.Count; index++)
+        {
+            var exerciseId = request.OrderedIds[index];
+            if (exerciseMap.TryGetValue(exerciseId, out var exercise))
+            {
+                exercise.OrderIndex = index;
+            }
+        }
+
+        day.TrainingPlan!.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        _logger.LogInformation("Reordered {ExerciseCount} exercises for day {DayId} in plan {PlanId} (user {UserId})", day.Exercises.Count, day.Id, day.TrainingPlanId, userId);
 
         return new JsonResult(new { success = true });
     }
@@ -536,9 +602,48 @@ public class DetailsModel : PageModel
                     _logger.LogWarning(ex, "Failed to delete image {ImagePath}", absolutePath);
                 }
             }
+
+            CleanupEmptyDirectories(Path.GetDirectoryName(absolutePath));
         }
 
         return Task.CompletedTask;
+    }
+
+    private void CleanupEmptyDirectories(string? directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory))
+        {
+            return;
+        }
+
+        var root = GetAbsoluteImagePath(string.Empty, allowMissingBasePath: true);
+        if (string.IsNullOrWhiteSpace(root))
+        {
+            return;
+        }
+
+        while (!string.IsNullOrWhiteSpace(directory) && directory.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+        {
+            if (Directory.Exists(directory) && Directory.EnumerateFileSystemEntries(directory).Any())
+            {
+                break;
+            }
+
+            try
+            {
+                if (Directory.Exists(directory))
+                {
+                    Directory.Delete(directory);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to delete empty directory {Directory}", directory);
+                break;
+            }
+
+            directory = Path.GetDirectoryName(directory);
+        }
     }
 
     private string GetAbsoluteImagePath(string relativePath, bool allowMissingBasePath = false)

@@ -64,7 +64,7 @@ else
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody data-day-id="@day.Id">
                             @if (day.Exercises.Count == 0)
                             {
                                 <tr>
@@ -75,18 +75,24 @@ else
                             {
                                 @foreach (var exercise in day.Exercises)
                                 {
-                                    <tr>
+                                    <tr data-exercise-id="@exercise.Id">
                                         <td>@exercise.Name</td>
                                         <td>@exercise.Sets</td>
                                         <td>@exercise.Repetitions</td>
                                         <td>@(exercise.RestSeconds ?? 0)s</td>
                                         <td class="text-end">
-                                            <button class="btn btn-sm btn-outline-secondary" type="button" data-exercise-modal data-plan-id="@Model.Plan.Id" data-day-id="@day.Id" data-exercise-id="@exercise.Id">Edit</button>
-                                            <form method="post" asp-page-handler="DeleteExercise" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" asp-route-exerciseId="@exercise.Id" class="d-inline" id="delete-exercise-@day.Id-@exercise.Id">
-                                                <button class="btn btn-sm btn-outline-danger" type="button" data-confirm="modal" data-confirm-form="delete-exercise-@day.Id-@exercise.Id" data-confirm-message="Are you sure you want to delete this exercise and its image?">
-                                                    Delete
-                                                </button>
-                                            </form>
+                                            <div class="exercise-actions">
+                                                <div class="exercise-order-controls">
+                                                    <button class="btn btn-sm btn-outline-secondary exercise-move" type="button" data-delta="-1" aria-label="Move exercise up">↑</button>
+                                                    <button class="btn btn-sm btn-outline-secondary exercise-move" type="button" data-delta="1" aria-label="Move exercise down">↓</button>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-secondary" type="button" data-exercise-modal data-plan-id="@Model.Plan.Id" data-day-id="@day.Id" data-exercise-id="@exercise.Id">Edit</button>
+                                                <form method="post" asp-page-handler="DeleteExercise" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" asp-route-exerciseId="@exercise.Id" class="d-inline" id="delete-exercise-@day.Id-@exercise.Id">
+                                                    <button class="btn btn-sm btn-outline-danger" type="button" data-confirm="modal" data-confirm-form="delete-exercise-@day.Id-@exercise.Id" data-confirm-message="Are you sure you want to delete this exercise and its image?">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 }

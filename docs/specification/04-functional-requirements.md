@@ -15,7 +15,7 @@
 
 ## Exercises
 - Create, read, update, delete exercises within a day.
-- Exercises are ordered and can be rearranged by drag and drop or up/down buttons.
+- Exercises are ordered and can be rearranged using up/down buttons (no drag and drop).
 - Exercise creation/editing is performed in a modal within the plan view.
 - Deleting an exercise removes its image file from disk.
 - New exercises are added to the end of the list.
