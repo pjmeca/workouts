@@ -27,10 +27,13 @@ else if (Model.Plans.Count == 0)
 }
 else
 {
+    <form id="planReorderToken" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
     <div class="plan-list" id="planList">
         @foreach (var plan in Model.Plans)
         {
-            <div class="plan-card" data-plan-id="@plan.Id">
+            <div class="plan-card" data-plan-id="@plan.Id" data-order-index="@plan.OrderIndex" draggable="true">
                 <div>
                     <h2 class="h5 mb-1">
                         <a class="text-decoration-none" asp-page="/Plans/Details" asp-route-id="@plan.Id">@plan.Name</a>
@@ -38,6 +41,16 @@ else
                     <p class="text-muted mb-0">@plan.Description</p>
                 </div>
                 <div class="plan-actions">
+                    <div class="plan-order-controls">
+                        <form method="post" asp-page-handler="Move" asp-route-id="@plan.Id" class="d-inline">
+                            <input type="hidden" name="delta" value="-1" />
+                            <button class="btn btn-outline-secondary btn-sm plan-move" type="submit" data-delta="-1" aria-label="Move plan up">↑</button>
+                        </form>
+                        <form method="post" asp-page-handler="Move" asp-route-id="@plan.Id" class="d-inline">
+                            <input type="hidden" name="delta" value="1" />
+                            <button class="btn btn-outline-secondary btn-sm plan-move" type="submit" data-delta="1" aria-label="Move plan down">↓</button>
+                        </form>
+                    </div>
                     <a class="btn btn-outline-primary" asp-page="/Plans/Play" asp-route-id="@plan.Id" aria-label="Start training">
                         ▶
                     </a>

@@ -24,8 +24,8 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 - [x] Create plan form
 - [x] Edit plan form
 - [x] Delete plan with confirmation modal
-- [ ] Implement plan ordering (drag & drop + up/down buttons)
-- [ ] Persist plan ordering to database
+- [x] Implement plan ordering (drag & drop + up/down buttons)
+- [x] Persist plan ordering to database
 
 ## Days (CRUD + ordering)
 - [ ] Create day form
