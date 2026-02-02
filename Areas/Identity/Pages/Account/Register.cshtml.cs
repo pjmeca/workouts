@@ -65,12 +65,12 @@ public class RegisterModel : PageModel
 
         if (await _userManager.FindByEmailAsync(email) != null)
         {
-            ModelState.AddModelError(nameof(Input.Email), "Email is already in use.");
+            ModelState.AddModelError("Input.Email", "Email is already in use.");
         }
 
         if (await _userManager.FindByNameAsync(username) != null)
         {
-            ModelState.AddModelError(nameof(Input.Username), "Username is already in use.");
+            ModelState.AddModelError("Input.Username", "Username is already in use.");
         }
 
         if (!ModelState.IsValid)
