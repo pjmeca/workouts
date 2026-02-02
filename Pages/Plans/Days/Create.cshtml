@@ -1,0 +1,36 @@
+@page
+@model Workouts.Pages.Plans.Days.CreateModel
+@{
+    ViewData["Title"] = "Add day";
+}
+
+@if (Model.NotFound)
+{
+    <div class="alert alert-warning">Plan not found.</div>
+}
+else
+{
+    <h1 class="page-title">Add day to @Model.PlanName</h1>
+
+    <form method="post" class="card-form">
+        <input type="hidden" asp-for="Input.PlanId" />
+        <div class="mb-3">
+            <label asp-for="Input.Name" class="form-label"></label>
+            <input asp-for="Input.Name" class="form-control" />
+            <span asp-validation-for="Input.Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Input.Notes" class="form-label"></label>
+            <textarea asp-for="Input.Notes" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Input.Notes" class="text-danger"></span>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-outline-secondary" asp-page="/Plans/Details" asp-route-id="@Model.PlanId">Cancel</a>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

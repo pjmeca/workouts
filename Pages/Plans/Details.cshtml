@@ -10,67 +10,90 @@
 }
 else
 {
-    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
-        <div>
-            <h1 class="page-title">@Model.Plan.Name</h1>
-            <p class="text-muted mb-0">@Model.Plan.Description</p>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" type="button">Add day</button>
-            <a class="btn btn-outline-primary" asp-page="/Index">Back</a>
-        </div>
-    </div>
-
-    @foreach (var day in Model.Plan.Days)
-    {
-        <section class="mb-4">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <h2 class="h5 mb-0">@day.Name</h2>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-secondary" type="button">Edit</button>
-                    <button class="btn btn-sm btn-outline-danger" type="button">Delete</button>
-                </div>
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h1 class="page-title">@Model.Plan.Name</h1>
+                <p class="text-muted mb-0">@Model.Plan.Description</p>
             </div>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Exercise</th>
-                            <th>Sets</th>
-                            <th>Reps</th>
-                            <th>Rest</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (day.Exercises.Count == 0)
-                        {
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary" asp-page="/Plans/Days/Create" asp-route-planId="@Model.Plan.Id">Add day</a>
+                <a class="btn btn-outline-primary" asp-page="/Index">Back</a>
+            </div>
+        </div>
+
+    <form id="dayReorderToken" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div class="day-list" id="dayList" data-plan-id="@Model.Plan.Id">
+        @foreach (var day in Model.Plan.Days)
+        {
+            <section class="day-card mb-4" data-day-id="@day.Id" data-order-index="@day.OrderIndex" draggable="true">
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="day-order-controls">
+                            <form method="post" asp-page-handler="MoveDay" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" class="d-inline">
+                                <input type="hidden" name="delta" value="-1" />
+                                <button class="btn btn-outline-secondary btn-sm day-move" type="submit" data-delta="-1" aria-label="Move day up">↑</button>
+                            </form>
+                            <form method="post" asp-page-handler="MoveDay" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" class="d-inline">
+                                <input type="hidden" name="delta" value="1" />
+                                <button class="btn btn-outline-secondary btn-sm day-move" type="submit" data-delta="1" aria-label="Move day down">↓</button>
+                            </form>
+                        </div>
+                        <h2 class="h5 mb-0">@day.Name</h2>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a class="btn btn-sm btn-outline-primary" asp-page="/Plans/Play" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" aria-label="Start training">▶</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Plans/Days/Edit" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id">Edit</a>
+                        <form method="post" asp-page-handler="DeleteDay" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" class="d-inline" id="delete-day-@day.Id">
+                            <button class="btn btn-sm btn-outline-danger" type="button" data-confirm="modal" data-confirm-form="delete-day-@day.Id" data-confirm-message="Are you sure you want to delete this day and all its exercises?">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
                             <tr>
-                                <td colspan="5" class="text-muted">No exercises yet.</td>
+                                <th>Exercise</th>
+                                <th>Sets</th>
+                                <th>Reps</th>
+                                <th>Rest</th>
+                                <th class="text-end">Actions</th>
                             </tr>
-                        }
-                        else
-                        {
-                            @foreach (var exercise in day.Exercises)
+                        </thead>
+                        <tbody>
+                            @if (day.Exercises.Count == 0)
                             {
                                 <tr>
-                                    <td>@exercise.Name</td>
-                                    <td>@exercise.Sets</td>
-                                    <td>@exercise.Repetitions</td>
-                                    <td>@(exercise.RestSeconds ?? 0)s</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#exerciseModal">Edit</button>
-                                        <button class="btn btn-sm btn-outline-danger" type="button">Delete</button>
-                                    </td>
+                                    <td colspan="5" class="text-muted">No exercises yet.</td>
                                 </tr>
                             }
-                        }
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#exerciseModal">Add exercise</button>
-        </section>
-    }
+                            else
+                            {
+                                @foreach (var exercise in day.Exercises)
+                                {
+                                    <tr>
+                                        <td>@exercise.Name</td>
+                                        <td>@exercise.Sets</td>
+                                        <td>@exercise.Repetitions</td>
+                                        <td>@(exercise.RestSeconds ?? 0)s</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#exerciseModal">Edit</button>
+                                            <button class="btn btn-sm btn-outline-danger" type="button">Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#exerciseModal">Add exercise</button>
+            </section>
+        }
+    </div>
 }
 
 <div class="modal fade" id="exerciseModal" tabindex="-1" aria-hidden="true">

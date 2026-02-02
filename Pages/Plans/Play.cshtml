@@ -1,4 +1,4 @@
-@page "{id:guid}"
+@page "{planId:guid}/{dayId:int}"
 @model Workouts.Pages.Plans.PlayModel
 @{
     ViewData["Title"] = "Training run";
@@ -12,8 +12,11 @@ else
 {
     <div class="training-run">
         <div class="training-header">
-            <h1 class="page-title">@Model.PlanName</h1>
-            <button class="btn btn-outline-danger" type="button" data-confirm="modal" data-confirm-href="/" data-confirm-message="Are you sure you want to abandon this training run?">Abandon</button>
+            <div>
+                <h1 class="page-title">@Model.DayName</h1>
+                <p class="text-muted mb-0">@Model.PlanName</p>
+            </div>
+            <button class="btn btn-outline-danger" type="button" data-confirm="modal" data-confirm-href="/Plans/Details/@Model.PlanId" data-confirm-message="Are you sure you want to abandon this training run?">Abandon</button>
         </div>
         <div class="training-stage" id="trainingStage">
             <div class="training-placeholder">
@@ -27,7 +30,8 @@ else
     <script>
         window.workouts = window.workouts || {};
         window.workouts.run = {
-            planId: "@Model.PlanId"
+            planId: "@Model.PlanId",
+            dayId: "@Model.DayId"
         };
     </script>
 }

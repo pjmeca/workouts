@@ -16,7 +16,7 @@
 - Primary CTA: "Create plan".
 - Each plan card/row shows:
   - Plan name and short description.
-  - Actions on the right: Play (start training), Edit, Delete.
+  - Actions on the right: Edit, Delete.
 - Delete action shows confirmation dialog.
 - Drag and drop ordering for plans, plus Up/Down buttons.
 
@@ -29,6 +29,7 @@
 - Exercise creation/editing happens in a modal (no navigation away).
 - Drag and drop ordering for days and exercises, plus Up/Down buttons.
 - Delete actions show confirmation dialogs.
+- Each day has a Play button to start a training run for that day.
 
 ## Modal: Exercise create/edit
 - Fields: Name, Description, Sets, Repetitions, RestSeconds, Image upload, Notes.

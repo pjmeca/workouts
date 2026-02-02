@@ -21,8 +21,8 @@
 - New exercises are added to the end of the list.
 
 ## Training run (play mode)
-- From the plan list, a Play button starts a training run.
-- The training run displays exercises in order and one at a time.
+- From the day list, a Play button starts a training run for that day.
+- The training run displays exercises from the selected day in order and one at a time.
 - Each exercise appears as many times as its Sets value.
 - After each exercise set, show a rest screen if RestSeconds > 0.
 - The training run state is stored in session storage to recover after refresh.

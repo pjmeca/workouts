@@ -191,3 +191,151 @@
         }
     });
 })();
+
+(() => {
+    const list = document.getElementById("dayList");
+    const tokenInput = document.querySelector("#dayReorderToken input[name='__RequestVerificationToken']");
+
+    if (!list || !tokenInput) {
+        return;
+    }
+
+    const planId = list.getAttribute("data-plan-id");
+    if (!planId) {
+        return;
+    }
+
+    const persistOrder = async () => {
+        const orderedIds = [...list.querySelectorAll(".day-card")]
+            .map((card) => card.getAttribute("data-day-id"))
+            .filter(Boolean)
+            .map((value) => Number.parseInt(value, 10))
+            .filter(Number.isFinite);
+
+        if (orderedIds.length === 0) {
+            return;
+        }
+
+        try {
+            const response = await fetch("?handler=ReorderDays", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": tokenInput.value
+                },
+                body: JSON.stringify({ planId, orderedIds })
+            });
+
+            if (!response.ok) {
+                console.warn("Failed to reorder days.");
+            }
+        } catch (error) {
+            console.warn("Failed to reorder days.", error);
+        }
+    };
+
+    const getDragAfterElement = (container, y) => {
+        const draggableElements = [...container.querySelectorAll(".day-card:not(.dragging)")];
+
+        return draggableElements.reduce(
+            (closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset, element: child };
+                }
+                return closest;
+            },
+            { offset: Number.NEGATIVE_INFINITY, element: null }
+        ).element;
+    };
+
+    let dragging = null;
+    let allowDrag = false;
+
+    list.addEventListener("pointerdown", (event) => {
+        const card = event.target.closest(".day-card");
+        if (!card || event.target.closest("button") || event.target.closest("a") || event.target.closest("form")) {
+            return;
+        }
+        allowDrag = true;
+    });
+
+    list.addEventListener("dragstart", (event) => {
+        if (!allowDrag) {
+            event.preventDefault();
+            return;
+        }
+
+        dragging = event.target.closest(".day-card");
+        if (!dragging) {
+            event.preventDefault();
+            return;
+        }
+
+        dragging.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+    });
+
+    list.addEventListener("dragend", () => {
+        if (dragging) {
+            dragging.classList.remove("dragging");
+        }
+        dragging = null;
+        allowDrag = false;
+    });
+
+    list.addEventListener("dragover", (event) => {
+        if (!dragging) {
+            return;
+        }
+        event.preventDefault();
+        const afterElement = getDragAfterElement(list, event.clientY);
+        if (afterElement == null) {
+            list.appendChild(dragging);
+        } else {
+            list.insertBefore(dragging, afterElement);
+        }
+    });
+
+    list.addEventListener("drop", async (event) => {
+        if (!dragging) {
+            return;
+        }
+        event.preventDefault();
+        await persistOrder();
+    });
+
+    list.addEventListener("click", async (event) => {
+        const moveButton = event.target.closest(".day-move");
+        if (!moveButton) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const card = moveButton.closest(".day-card");
+        if (!card) {
+            return;
+        }
+
+        const delta = Number.parseInt(moveButton.getAttribute("data-delta") || "0", 10);
+        if (!Number.isFinite(delta) || delta === 0) {
+            return;
+        }
+
+        if (delta < 0) {
+            const prev = card.previousElementSibling;
+            if (prev && prev.classList.contains("day-card")) {
+                list.insertBefore(card, prev);
+                await persistOrder();
+            }
+        } else {
+            const next = card.nextElementSibling;
+            if (next && next.classList.contains("day-card")) {
+                list.insertBefore(card, next.nextSibling);
+                await persistOrder();
+            }
+        }
+    });
+})();

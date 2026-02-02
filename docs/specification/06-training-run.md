@@ -1,11 +1,11 @@
 # Training run (play mode)
 
 ## Entry point
-- Play button on the plans list starts a training run for that plan.
+- Play button on a day starts a training run for that day.
 - Provide an "Abandon" button to exit the run.
 
 ## Exercise flow
-- Exercises are ordered by day order, then by exercise order within each day.
+- Exercises are ordered within the selected day by exercise order.
 - Each exercise appears multiple times based on Sets.
 - Example for exercise A with Sets = 2 and RestSeconds > 0:
   - A (set 1) -> Rest -> A (set 2) -> Rest -> next exercise

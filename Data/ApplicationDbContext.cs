@@ -43,6 +43,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(day => new { day.TrainingPlanId, day.Id });
             entity.HasIndex(day => new { day.TrainingPlanId, day.OrderIndex });
 
+            entity.Property(day => day.Id)
+                .ValueGeneratedNever();
+
             entity.Property(day => day.Name)
                 .HasMaxLength(100)
                 .IsRequired();
@@ -60,6 +63,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             entity.HasKey(exercise => new { exercise.TrainingPlanId, exercise.TrainingDayId, exercise.Id });
             entity.HasIndex(exercise => new { exercise.TrainingPlanId, exercise.TrainingDayId, exercise.OrderIndex });
+
+            entity.Property(exercise => exercise.Id)
+                .ValueGeneratedNever();
 
             entity.Property(exercise => exercise.Name)
                 .HasMaxLength(100)

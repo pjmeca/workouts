@@ -63,6 +63,40 @@ body.app-body {
     cursor: auto;
 }
 
+.day-card {
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    animation: slideUp 0.35s ease;
+}
+
+.day-card[draggable="true"] {
+    cursor: grab;
+}
+
+.day-card.dragging {
+    opacity: 0.7;
+    cursor: grabbing;
+}
+
+.day-card a,
+.day-card button,
+.day-card form {
+    cursor: auto;
+}
+
+.day-order-controls {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    padding: 0.25rem 0.4rem;
+    border-radius: 999px;
+    border: 1px dashed var(--border);
+    background: var(--bg-accent);
+}
+
 .plan-card.dragging {
     opacity: 0.7;
     cursor: grabbing;

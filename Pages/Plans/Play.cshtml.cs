@@ -22,9 +22,11 @@ public class PlayModel : PageModel
 
     public bool NotFound { get; private set; }
     public Guid PlanId { get; private set; }
+    public int DayId { get; private set; }
     public string PlanName { get; private set; } = string.Empty;
+    public string DayName { get; private set; } = string.Empty;
 
-    public async Task<IActionResult> OnGetAsync(Guid id)
+    public async Task<IActionResult> OnGetAsync(Guid planId, int dayId)
     {
         var userId = _userManager.GetUserId(User);
         if (string.IsNullOrWhiteSpace(userId))
@@ -34,7 +36,8 @@ public class PlayModel : PageModel
 
         var plan = await _db.TrainingPlans
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+            .Include(p => p.Days)
+            .FirstOrDefaultAsync(p => p.Id == planId && p.UserId == userId);
 
         if (plan == null)
         {
@@ -42,8 +45,17 @@ public class PlayModel : PageModel
             return Page();
         }
 
+        var day = plan.Days.FirstOrDefault(d => d.Id == dayId);
+        if (day == null)
+        {
+            NotFound = true;
+            return Page();
+        }
+
         PlanId = plan.Id;
+        DayId = day.Id;
         PlanName = plan.Name;
+        DayName = day.Name;
 
         return Page();
     }

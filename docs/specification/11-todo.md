@@ -28,11 +28,11 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 - [x] Persist plan ordering to database
 
 ## Days (CRUD + ordering)
-- [ ] Create day form
-- [ ] Edit day form
-- [ ] Delete day with confirmation modal
-- [ ] Implement day ordering (drag & drop + up/down buttons)
-- [ ] Persist day ordering to database
+- [x] Create day form
+- [x] Edit day form
+- [x] Delete day with confirmation modal
+- [x] Implement day ordering (drag & drop + up/down buttons)
+- [x] Persist day ordering to database
 
 ## Exercises (CRUD + ordering)
 - [ ] Implement exercise create/edit modal with validation
@@ -68,7 +68,8 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 
 ## Security & validation
 - [x] Server-side validation for plan create/edit
-- [ ] Validation for day and exercise forms
+- [x] Validation for day forms
+- [ ] Validation for exercise forms
 - [ ] Ensure user scoping for all queries (days/exercises)
 
 ## Documentation
