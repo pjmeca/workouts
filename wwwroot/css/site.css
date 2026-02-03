@@ -160,6 +160,31 @@ body.app-body {
     box-shadow: var(--shadow);
 }
 
+.validation-summary-errors {
+    background: rgba(192, 57, 43, 0.08);
+    border: 1px solid rgba(192, 57, 43, 0.3);
+    color: #8b2a1f;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+}
+
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.field-validation-error {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.9rem;
+    color: #8b2a1f;
+}
+
+.input-validation-error {
+    border-color: rgba(192, 57, 43, 0.55);
+    box-shadow: 0 0 0 0.2rem rgba(192, 57, 43, 0.15);
+}
+
 .empty-state {
     padding: 2rem;
     background: var(--card);
