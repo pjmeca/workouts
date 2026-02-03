@@ -30,10 +30,11 @@ else
     <form id="planReorderToken" method="post" class="d-none">
         @Html.AntiForgeryToken()
     </form>
-    <div class="plan-list" id="planList">
+    <p class="text-muted small mb-3">Drag a plan card to reorder or use the arrows.</p>
+    <div class="plan-list" id="planList" role="list">
         @foreach (var plan in Model.Plans)
         {
-            <div class="plan-card" data-plan-id="@plan.Id" data-order-index="@plan.OrderIndex" draggable="true">
+            <div class="plan-card" data-plan-id="@plan.Id" data-order-index="@plan.OrderIndex" draggable="true" role="listitem">
                 <div>
                     <h2 class="h5 mb-1">
                         <a class="text-decoration-none" asp-page="/Plans/Details" asp-route-id="@plan.Id">@plan.Name</a>

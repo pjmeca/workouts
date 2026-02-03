@@ -56,9 +56,9 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 ## UX/UI
 - [x] Base layout + theme styles + animations
 - [x] Confirmation modal (Bootstrap) in shared layout
-- [ ] Mobile-first refinements for tables and buttons
-- [ ] Empty states for day/exercise lists
-- [ ] Drag-and-drop styling and accessibility
+- [x] Mobile-first refinements for tables and buttons
+- [x] Empty states for day/exercise lists
+- [x] Drag-and-drop styling and accessibility
 
 ## Logging and error handling
 - [x] Serilog request logging + daily file logs

@@ -25,10 +25,21 @@ else
         @Html.AntiForgeryToken()
     </form>
 
-    <div class="day-list" id="dayList" data-plan-id="@Model.Plan.Id">
-        @foreach (var day in Model.Plan.Days)
-        {
-            <section class="day-card mb-4" data-day-id="@day.Id" data-order-index="@day.OrderIndex" draggable="true">
+    @if (Model.Plan.Days.Count == 0)
+    {
+        <div class="empty-state">
+            <h2 class="h5 mb-2">No days yet</h2>
+            <p class="text-muted mb-3">Add your first training day to start building this plan.</p>
+            <a class="btn btn-primary" asp-page="/Plans/Days/Create" asp-route-planId="@Model.Plan.Id">Add day</a>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted small mb-3">Drag a day card to reorder or use the arrows.</p>
+        <div class="day-list" id="dayList" data-plan-id="@Model.Plan.Id" role="list">
+            @foreach (var day in Model.Plan.Days)
+            {
+                <section class="day-card mb-4" data-day-id="@day.Id" data-order-index="@day.OrderIndex" draggable="true" role="listitem">
                 <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-2">
                     <div class="d-flex align-items-center gap-2">
                         <div class="day-order-controls">
@@ -60,7 +71,7 @@ else
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table align-middle">
+                    <table class="table align-middle exercise-table">
                         <thead>
                             <tr>
                                 <th>Exercise</th>
@@ -74,7 +85,7 @@ else
                             @if (day.Exercises.Count == 0)
                             {
                                 <tr>
-                                    <td colspan="5" class="text-muted">No exercises yet.</td>
+                                    <td colspan="5" class="text-muted text-center py-4">No exercises yet.</td>
                                 </tr>
                             }
                             else
@@ -82,11 +93,11 @@ else
                                 @foreach (var exercise in day.Exercises)
                                 {
                                     <tr data-exercise-id="@exercise.Id">
-                                        <td>@exercise.Name</td>
-                                        <td>@exercise.Sets</td>
-                                        <td>@exercise.Repetitions</td>
-                                        <td>@(exercise.RestSeconds ?? 0)s</td>
-                                        <td class="text-end">
+                                        <td data-label="Exercise">@exercise.Name</td>
+                                        <td data-label="Sets">@exercise.Sets</td>
+                                        <td data-label="Reps">@exercise.Repetitions</td>
+                                        <td data-label="Rest">@((exercise.RestSeconds ?? 0))s</td>
+                                        <td class="text-end" data-label="Actions">
                                             <div class="exercise-actions">
                                                 <div class="exercise-order-controls">
                                                     <button class="btn btn-sm btn-outline-secondary exercise-move" type="button" data-delta="-1" aria-label="Move exercise up">↑</button>
@@ -107,9 +118,10 @@ else
                     </table>
                 </div>
                 <button class="btn btn-sm btn-primary" type="button" data-exercise-modal data-plan-id="@Model.Plan.Id" data-day-id="@day.Id">Add exercise</button>
-            </section>
-        }
-    </div>
+                </section>
+            }
+        </div>
+    }
 }
 
 <div class="modal fade" id="exerciseModal" tabindex="-1" aria-hidden="true">

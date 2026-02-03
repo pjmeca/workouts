@@ -57,6 +57,17 @@ body.app-body {
     cursor: grab;
 }
 
+.plan-card:focus-within,
+.day-card:focus-within {
+    outline: 2px solid rgba(28, 107, 90, 0.35);
+    outline-offset: 4px;
+}
+
+.plan-card:hover,
+.day-card:hover {
+    border-color: rgba(28, 107, 90, 0.35);
+}
+
 .plan-card a,
 .plan-card button,
 .plan-card form {
@@ -279,6 +290,52 @@ body.app-body {
 
 .training-stage.training-animate .training-stage-inner {
     animation: slideUp 0.25s ease;
+}
+
+@media (max-width: 576px) {
+    .exercise-actions {
+        justify-content: flex-start;
+    }
+
+    .exercise-table thead {
+        display: none;
+    }
+
+    .exercise-table tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: var(--card);
+        box-shadow: var(--shadow);
+    }
+
+    .exercise-table tbody {
+        display: block;
+    }
+
+    .exercise-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.4rem 0;
+        border: none;
+    }
+
+    .exercise-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--muted);
+    }
+
+    .exercise-table td.text-end {
+        text-align: left !important;
+    }
+
+    .exercise-order-controls {
+        flex-wrap: nowrap;
+    }
 }
 
 .btn {
