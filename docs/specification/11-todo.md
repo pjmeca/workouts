@@ -47,11 +47,11 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 
 ## Training run (Play mode)
 - [x] Play page scaffold
-- [ ] Build exercise sequence (days + exercises + sets + rest screens)
-- [ ] Add timer + rest countdown UI
-- [ ] Session storage persistence for current step
-- [ ] Abandon training confirmation (modal)
-- [ ] Previous/Next navigation
+- [x] Build exercise sequence (days + exercises + sets + rest screens)
+- [x] Add timer + rest countdown UI
+- [x] Session storage persistence for current step
+- [x] Abandon training confirmation (modal)
+- [x] Previous/Next navigation
 
 ## UX/UI
 - [x] Base layout + theme styles + animations

@@ -10,28 +10,76 @@
 }
 else
 {
-    <div class="training-run">
+    <div class="training-run" data-run="active">
         <div class="training-header">
             <div>
                 <h1 class="page-title">@Model.DayName</h1>
                 <p class="text-muted mb-0">@Model.PlanName</p>
             </div>
-            <button class="btn btn-outline-danger" type="button" data-confirm="modal" data-confirm-href="/Plans/Details/@Model.PlanId" data-confirm-message="Are you sure you want to abandon this training run?">Abandon</button>
+            <button class="btn btn-outline-danger"
+                    type="button"
+                    data-confirm="modal"
+                    data-confirm-href="@Model.DetailsUrl"
+                    data-confirm-message="Are you sure you want to abandon this training run?"
+                    data-confirm-clear-run="true">
+                Abandon
+            </button>
         </div>
-        <div class="training-stage" id="trainingStage">
-            <div class="training-placeholder">
-                <p class="text-muted">Training run UI will render here.</p>
+
+        @if (Model.Exercises.Count == 0)
+        {
+            <div class="empty-state">
+                <h2 class="h5 mb-2">No exercises yet</h2>
+                <p class="text-muted mb-3">Add exercises to this day before starting the training run.</p>
+                <a class="btn btn-primary" href="@Model.DetailsUrl">Back to plan</a>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="training-stage" id="trainingStage">
+                <div class="training-stage-inner">
+                    <div class="training-exercise" id="trainingExercise">
+                        <div class="training-progress" id="trainingProgress"></div>
+                        <div class="training-title-row">
+                            <h2 class="training-title" id="trainingTitle"></h2>
+                            <span class="training-reps-inline" id="trainingReps"></span>
+                        </div>
+                        <p class="training-description text-muted" id="trainingDescription"></p>
+                        <div class="training-timer" id="trainingTimer"></div>
+                        <div class="training-image-wrap" id="trainingImageWrap"></div>
+                        <p class="training-notes text-muted" id="trainingNotes"></p>
+                    </div>
+                    <div class="training-rest d-none" id="trainingRest">
+                        <p class="training-rest-label">Rest</p>
+                        <div class="training-rest-timer" id="trainingRestTimer"></div>
+                        <div class="training-rest-controls">
+                            <button type="button" class="btn btn-outline-secondary" id="restMinus">-10</button>
+                            <button type="button" class="btn btn-outline-secondary" id="restPlus">+10</button>
+                        </div>
+                        <p class="training-rest-next text-muted" id="trainingRestNext"></p>
+                    </div>
+                    <div class="training-complete d-none" id="trainingComplete">
+                        <h2 class="training-title">Training complete</h2>
+                        <p class="text-muted">Nice work! You have finished this training run.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="training-controls">
+                <button class="btn btn-outline-secondary" id="trainingPrev" type="button">
+                    <span aria-hidden="true">←</span> Previous
+                </button>
+                <button class="btn btn-primary" id="trainingNext" type="button">
+                    Next <span aria-hidden="true">→</span>
+                </button>
+            </div>
+        }
     </div>
 }
 
 @section Scripts {
     <script>
         window.workouts = window.workouts || {};
-        window.workouts.run = {
-            planId: "@Model.PlanId",
-            dayId: "@Model.DayId"
-        };
+        window.workouts.run = @Html.Raw(Model.RunPayloadJson);
     </script>
 }

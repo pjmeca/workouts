@@ -23,11 +23,15 @@
 
         const formId = trigger.getAttribute("data-confirm-form");
         const href = trigger.getAttribute("data-confirm-href");
+        const clearRun = trigger.getAttribute("data-confirm-clear-run") === "true";
 
         pendingAction = null;
 
         if (formId) {
             pendingAction = () => {
+                if (clearRun && window.workouts?.run?.planId && window.workouts?.run?.dayId) {
+                    sessionStorage.removeItem(`workouts.run.${window.workouts.run.planId}.${window.workouts.run.dayId}`);
+                }
                 const form = document.getElementById(formId);
                 if (form) {
                     form.submit();
@@ -35,6 +39,9 @@
             };
         } else if (href) {
             pendingAction = () => {
+                if (clearRun && window.workouts?.run?.planId && window.workouts?.run?.dayId) {
+                    sessionStorage.removeItem(`workouts.run.${window.workouts.run.planId}.${window.workouts.run.dayId}`);
+                }
                 window.location.href = href;
             };
         }
@@ -140,6 +147,340 @@
             }
         }
     });
+})();
+
+(() => {
+    const initTrainingRun = () => {
+        const run = window.workouts && window.workouts.run;
+        const stage = document.getElementById("trainingStage");
+        if (!run || !stage) {
+            return;
+        }
+
+        if (stage.getAttribute("data-run-ready") === "true") {
+            return;
+        }
+        stage.setAttribute("data-run-ready", "true");
+
+        const exercises = Array.isArray(run.exercises) ? run.exercises : [];
+        if (exercises.length === 0) {
+            return;
+        }
+
+        const exerciseSection = document.getElementById("trainingExercise");
+        const restSection = document.getElementById("trainingRest");
+        const completeSection = document.getElementById("trainingComplete");
+        const progressEl = document.getElementById("trainingProgress");
+        const titleEl = document.getElementById("trainingTitle");
+        const descriptionEl = document.getElementById("trainingDescription");
+        const imageWrap = document.getElementById("trainingImageWrap");
+        const repsEl = document.getElementById("trainingReps");
+        const timerEl = document.getElementById("trainingTimer");
+        const notesEl = document.getElementById("trainingNotes");
+        const restTimerEl = document.getElementById("trainingRestTimer");
+        const restNextEl = document.getElementById("trainingRestNext");
+        const restMinus = document.getElementById("restMinus");
+        const restPlus = document.getElementById("restPlus");
+        const prevButton = document.getElementById("trainingPrev");
+        const nextButton = document.getElementById("trainingNext");
+
+        if (!exerciseSection || !restSection || !completeSection || !progressEl || !titleEl || !descriptionEl ||
+            !imageWrap || !repsEl || !timerEl || !notesEl || !restTimerEl || !restNextEl || !restMinus || !restPlus ||
+            !prevButton || !nextButton) {
+            return;
+        }
+
+        const buildSteps = (items) => {
+            const steps = [];
+            let exerciseIndex = 0;
+
+            items.forEach((exercise) => {
+                const sets = Number.isFinite(exercise.sets) ? Math.max(1, exercise.sets) : 1;
+                const restSeconds = Number.isFinite(exercise.restSeconds) ? Math.max(0, exercise.restSeconds) : 0;
+
+                for (let setIndex = 1; setIndex <= sets; setIndex += 1) {
+                    exerciseIndex += 1;
+                    steps.push({
+                        type: "exercise",
+                        exercise,
+                        setIndex,
+                        setCount: sets,
+                        exerciseStepIndex: exerciseIndex
+                    });
+
+                    if (restSeconds > 0) {
+                        steps.push({
+                            type: "rest",
+                            exercise,
+                            restSeconds
+                        });
+                    }
+                }
+            });
+
+            if (steps.length > 0 && steps[steps.length - 1].type === "rest") {
+                steps.pop();
+            }
+
+            return steps;
+        };
+
+        const steps = buildSteps(exercises);
+        if (steps.length === 0) {
+            return;
+        }
+
+        steps.push({ type: "complete" });
+
+        const totalExerciseSteps = steps.filter((step) => step.type === "exercise").length;
+        const storageKey = `workouts.run.${run.planId}.${run.dayId}`;
+        let currentIndex = 0;
+        let elapsedSeconds = 0;
+        let remainingSeconds = 0;
+        let lastUpdated = Date.now();
+
+        const formatTime = (seconds) => {
+            const value = Math.max(0, Math.floor(seconds));
+            const mins = Math.floor(value / 60).toString().padStart(2, "0");
+            const secs = (value % 60).toString().padStart(2, "0");
+            return `${mins}:${secs}`;
+        };
+
+        const setVisibility = (element, isVisible) => {
+            element.classList.toggle("d-none", !isVisible);
+        };
+
+        const setText = (element, value) => {
+            if (!value) {
+                element.textContent = "";
+                element.classList.add("d-none");
+                return;
+            }
+            element.textContent = value;
+            element.classList.remove("d-none");
+        };
+
+        const saveState = () => {
+            sessionStorage.setItem(
+                storageKey,
+                JSON.stringify({
+                    planId: run.planId,
+                    dayId: run.dayId,
+                    index: currentIndex,
+                    elapsedSeconds,
+                    remainingSeconds,
+                    lastUpdated: Date.now()
+                })
+            );
+        };
+
+        const resetTimersForStep = (step) => {
+            elapsedSeconds = 0;
+            remainingSeconds = 0;
+            if (step.type === "rest") {
+                remainingSeconds = step.restSeconds;
+            }
+            lastUpdated = Date.now();
+        };
+
+        const loadState = () => {
+            const raw = sessionStorage.getItem(storageKey);
+            if (!raw) {
+                return false;
+            }
+
+            try {
+                const saved = JSON.parse(raw);
+                if (saved.planId !== run.planId || saved.dayId !== run.dayId) {
+                    return false;
+                }
+
+                if (!Number.isFinite(saved.index) || saved.index < 0 || saved.index >= steps.length) {
+                    return false;
+                }
+
+                currentIndex = saved.index;
+                const now = Date.now();
+                const delta = Number.isFinite(saved.lastUpdated)
+                    ? Math.max(0, Math.floor((now - saved.lastUpdated) / 1000))
+                    : 0;
+
+                const step = steps[currentIndex];
+                if (step.type === "exercise") {
+                    elapsedSeconds = Math.max(0, Number(saved.elapsedSeconds) || 0) + delta;
+                } else if (step.type === "rest") {
+                    const baseRemaining = Number.isFinite(saved.remainingSeconds)
+                        ? saved.remainingSeconds
+                        : step.restSeconds;
+                    remainingSeconds = Math.max(0, baseRemaining - delta);
+                }
+
+                return true;
+            } catch (error) {
+                return false;
+            }
+        };
+
+        const updateExerciseView = (step) => {
+            const exercise = step.exercise;
+            setVisibility(exerciseSection, true);
+            setVisibility(restSection, false);
+            setVisibility(completeSection, false);
+
+            progressEl.textContent = `Exercise ${step.exerciseStepIndex} of ${totalExerciseSteps} · Set ${step.setIndex} of ${step.setCount}`;
+            titleEl.textContent = exercise.name;
+            setText(descriptionEl, exercise.description);
+
+            if (exercise.imageUrl) {
+                imageWrap.innerHTML = "";
+                const img = document.createElement("img");
+                img.src = exercise.imageUrl;
+                img.alt = exercise.name;
+                img.loading = "lazy";
+                imageWrap.appendChild(img);
+                setVisibility(imageWrap, true);
+            } else {
+                imageWrap.innerHTML = "";
+                setVisibility(imageWrap, false);
+            }
+
+            repsEl.textContent = `× ${exercise.repetitions}`;
+            timerEl.textContent = `Elapsed: ${formatTime(elapsedSeconds)}`;
+            setText(notesEl, exercise.notes ? `Notes: ${exercise.notes}` : "");
+        };
+
+        const updateRestView = (step) => {
+            setVisibility(exerciseSection, false);
+            setVisibility(restSection, true);
+            setVisibility(completeSection, false);
+
+            progressEl.textContent = "Rest";
+            restTimerEl.textContent = formatTime(remainingSeconds);
+
+            const nextStep = steps[currentIndex + 1];
+            if (nextStep && nextStep.type === "exercise") {
+                restNextEl.textContent = `Up next: ${nextStep.exercise.name} (Set ${nextStep.setIndex} of ${nextStep.setCount})`;
+            } else {
+                restNextEl.textContent = "Up next: Finish";
+            }
+        };
+
+        const updateCompleteView = () => {
+            setVisibility(exerciseSection, false);
+            setVisibility(restSection, false);
+            setVisibility(completeSection, true);
+            progressEl.textContent = "Complete";
+        };
+
+        const renderStep = () => {
+            const step = steps[currentIndex];
+            prevButton.disabled = currentIndex === 0;
+
+            if (step.type === "complete") {
+                nextButton.textContent = "Back to plan";
+                updateCompleteView();
+            } else {
+                nextButton.innerHTML = "Next <span aria-hidden=\"true\">→</span>";
+                if (step.type === "exercise") {
+                    updateExerciseView(step);
+                } else if (step.type === "rest") {
+                    updateRestView(step);
+                }
+            }
+
+            stage.classList.remove("training-animate");
+            void stage.offsetWidth;
+            stage.classList.add("training-animate");
+        };
+
+        const goToIndex = (index) => {
+            if (index < 0 || index >= steps.length) {
+                return;
+            }
+            currentIndex = index;
+            resetTimersForStep(steps[currentIndex]);
+            renderStep();
+            saveState();
+        };
+
+        const goNext = () => {
+            if (currentIndex >= steps.length - 1) {
+                return;
+            }
+            goToIndex(currentIndex + 1);
+        };
+
+        const goPrev = () => {
+            if (currentIndex <= 0) {
+                return;
+            }
+            goToIndex(currentIndex - 1);
+        };
+
+        prevButton.addEventListener("click", () => {
+            goPrev();
+        });
+
+        nextButton.addEventListener("click", () => {
+            const step = steps[currentIndex];
+            if (step.type === "complete") {
+                sessionStorage.removeItem(storageKey);
+                if (run.detailsUrl) {
+                    window.location.href = run.detailsUrl;
+                }
+                return;
+            }
+            goNext();
+        });
+
+        restMinus.addEventListener("click", () => {
+            if (steps[currentIndex].type !== "rest") {
+                return;
+            }
+            remainingSeconds = Math.max(0, remainingSeconds - 10);
+            restTimerEl.textContent = formatTime(remainingSeconds);
+            saveState();
+        });
+
+        restPlus.addEventListener("click", () => {
+            if (steps[currentIndex].type !== "rest") {
+                return;
+            }
+            remainingSeconds = remainingSeconds + 10;
+            restTimerEl.textContent = formatTime(remainingSeconds);
+            saveState();
+        });
+
+        const bootedFromStorage = loadState();
+        if (!bootedFromStorage) {
+            resetTimersForStep(steps[currentIndex]);
+        }
+
+        renderStep();
+        saveState();
+
+        setInterval(() => {
+            const step = steps[currentIndex];
+            if (step.type === "exercise") {
+                elapsedSeconds += 1;
+                timerEl.textContent = `Elapsed: ${formatTime(elapsedSeconds)}`;
+            } else if (step.type === "rest") {
+                remainingSeconds = Math.max(0, remainingSeconds - 1);
+                restTimerEl.textContent = formatTime(remainingSeconds);
+                if (remainingSeconds <= 0) {
+                    goNext();
+                    return;
+                }
+            }
+            saveState();
+        }, 1000);
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initTrainingRun, { once: true });
+    } else {
+        initTrainingRun();
+    }
 })();
 
 (() => {

@@ -332,10 +332,11 @@ public class DetailsModel : PageModel
                 ViewData["ExistingImageName"] = image.OriginalFileName;
                 ViewData["ExistingImageUrl"] = Url.Page("/Plans/Details", "ExerciseImage", new
                 {
+                    id = planId,
                     planId,
                     dayId,
                     exerciseId = exercise.Id
-                });
+                }) ?? $"/Plans/Details/{planId}?handler=ExerciseImage&planId={planId}&dayId={dayId}&exerciseId={exercise.Id}";
             }
 
             ViewData["FormTitle"] = "Edit exercise";
@@ -379,10 +380,11 @@ public class DetailsModel : PageModel
                     ViewData["ExistingImageName"] = image.OriginalFileName;
                     ViewData["ExistingImageUrl"] = Url.Page("/Plans/Details", "ExerciseImage", new
                     {
+                        id = input.PlanId,
                         planId = input.PlanId,
                         dayId = input.DayId,
                         exerciseId = existing!.Id
-                    });
+                    }) ?? $"/Plans/Details/{input.PlanId}?handler=ExerciseImage&planId={input.PlanId}&dayId={input.DayId}&exerciseId={existing!.Id}";
                 }
             }
 
