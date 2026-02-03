@@ -23,18 +23,21 @@ This repository will contain a .NET 10 Razor Pages web app for managing training
 ## Functional rules
 - CRUD: plans, days, exercises.
 - Plan ownership is private to each user.
-- Hard delete only, including image files.
+- Plans, days, and exercises use soft delete; images remain hard-deleted.
 - Training run (play mode) shows one exercise at a time, includes rest screens, and repeats sets.
+- Play mode includes pause/resume.
+- Show a \"next day\" badge per plan and persist next-day pointer.
 - Login accepts either email or username; both must be unique.
 - List ordering is manual; new items appear at the end.
 - OrderIndex is always 0-based.
 - Persist play mode state in session storage and include an Abandon button.
+- Capture and persist analytics (per-set/rest timings) on completion. Each run uses a GUID id.
 
 ## Image storage
 - Store one image per exercise now, but keep the model ready for multiple images.
-- Path format: `{userId}/{planId}/{exerciseId}/{imageGuid}.jpg`
+- Path format: `{userId}/{planId}/{exerciseId}/{imageGuid}.webp`
 - Delete files from disk when their exercise or plan is deleted.
-- Compress images client-side before upload if possible.
+- Convert and compress images to WebP client-side before upload if possible.
 - Store the original file name in the database and use a GUID file name on disk.
 
 ## Data access

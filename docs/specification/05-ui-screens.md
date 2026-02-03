@@ -24,6 +24,7 @@
 - Shows plan name and description.
 - Sections for each day in order.
 - Each day contains a table (or list) of exercises in order.
+- The next training day is marked with a green "next day" badge.
 - Each exercise row shows key fields and actions: Edit, Delete.
 - Add Day and Add Exercise actions are clearly visible.
 - Exercise creation/editing happens in a modal (no navigation away).
@@ -45,3 +46,6 @@
 ## Training run (Play)
 - Fullscreen-focused flow for workouts.
 - Abandon button to exit the run.
+- Pause button (icon) at the top-right of the workout card.
+- When paused, show a large play button centered, dim the content, and disable navigation controls.
+- If an exercise image is present, tapping it opens a full-screen lightbox with zoom and dimmed background, with a close (X) and swipe-to-dismiss.

@@ -4,7 +4,7 @@
 Store uploaded exercise images under the server root using this structure:
 
 ```
-{userId}/{planId}/{exerciseId}/{imageGuid}.jpg
+{userId}/{planId}/{exerciseId}/{imageGuid}.webp
 ```
 
 Notes:
@@ -17,7 +17,7 @@ Notes:
 
 ## Uploads
 - Upload is done via the exercise modal.
-- Client-side compression is applied before upload to reduce size.
+- Client-side compression converts images to WebP before upload to reduce size and preserve transparency.
 - No explicit limits on file size or format in this version.
 
 ## Deletion

@@ -10,8 +10,11 @@ Provide a simple web app to create, organize, and run personal training routines
 - CRUD for exercises within a day.
 - Ordering of days and exercises using drag and drop plus up/down controls.
 - Training run (play mode) that shows one exercise at a time, with series and rest handling.
+- Pause/resume controls during play mode.
 - Image upload per exercise (single image now, model prepared for multiple images later).
 - File storage on the server for images following the defined path convention.
+- Next training day indicator per plan.
+- Analytics capture for completed runs (per-set and rest timings).
 
 ## Out of scope (for this version)
 - Password reset or email verification.
@@ -19,6 +22,7 @@ Provide a simple web app to create, organize, and run personal training routines
 - Sharing plans between users.
 - Internationalization or multiple languages.
 - Mobile apps or offline usage.
+- Advanced analytics dashboards (reporting UI).
 
 ## Success criteria
 - A user can register, log in, and manage training plans without page reload friction.

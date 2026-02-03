@@ -75,3 +75,20 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 ## Documentation
 - [x] Keep specification updated
 - [x] Update TODO checklist as work progresses
+
+## New features (pause, next day, analytics, soft delete)
+- [ ] Add pause/resume controls in play mode (overlay + disabled controls)
+- [ ] Persist pause state in session storage
+- [ ] Add image lightbox + zoom in play mode
+- [ ] Make play-mode image height responsive with a minimum size
+- [ ] Add next-day tracking model (`UserNextTrainingDay`)
+- [ ] Show \"next day\" badge in plan details UI
+- [ ] Update next-day pointer on run completion
+- [ ] Handle next-day pointer when deleting a day or plan
+- [ ] Add analytics models (`TrainingRun`, `TrainingRunSet`)
+- [ ] Implement analytics service to persist runs
+- [ ] Capture run stats client-side and submit JSON on completion
+- [ ] Add backend endpoint/handler for run completion payload
+- [ ] Implement soft delete for plans/days/exercises
+- [ ] Update queries to ignore soft-deleted records
+- [ ] Keep image deletion physical while soft-deleting entities
