@@ -17,7 +17,7 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 - [x] Implement Identity login (email or username)
 - [x] Implement registration with unique email and username validation
 - [x] Add logout page
-- [ ] Style Identity validation errors and messages (if needed)
+- [x] Style Identity validation errors and messages (if needed)
 
 ## Plans (CRUD + ordering)
 - [x] Plans list (index) with Create/Edit/Play actions
@@ -70,8 +70,8 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 - [x] Server-side validation for plan create/edit
 - [x] Validation for day forms
 - [x] Validation for exercise forms
-- [ ] Ensure user scoping for all queries (days/exercises)
+- [x] Ensure user scoping for all queries (days/exercises)
 
 ## Documentation
 - [x] Keep specification updated
-- [ ] Update TODO checklist as work progresses
+- [x] Update TODO checklist as work progresses
