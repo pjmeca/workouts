@@ -69,6 +69,18 @@ public class IndexModel : PageModel
             return RedirectToPage();
         }
 
+        var dayCount = plan.Days.Count;
+        var exerciseCount = plan.Days.Sum(d => d.Exercises.Count);
+        var imageCount = plan.Days.Sum(d => d.Exercises.Sum(e => e.Images.Count));
+
+        _logger.LogInformation(
+            "Deleting plan {PlanId} for user {UserId} with {DayCount} days, {ExerciseCount} exercises, {ImageCount} images",
+            plan.Id,
+            userId,
+            dayCount,
+            exerciseCount,
+            imageCount);
+
         foreach (var day in plan.Days.ToList())
         {
             foreach (var exercise in day.Exercises.ToList())
@@ -106,11 +118,26 @@ public class IndexModel : PageModel
                 try
                 {
                     System.IO.File.Delete(absolutePath);
+                    _logger.LogInformation(
+                        "Deleted image file {ImagePath} for exercise {ExerciseId} (plan {PlanId}, day {DayId})",
+                        absolutePath,
+                        exercise.Id,
+                        exercise.TrainingPlanId,
+                        exercise.TrainingDayId);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Failed to delete image {ImagePath}", absolutePath);
                 }
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Expected image file missing at {ImagePath} for exercise {ExerciseId} (plan {PlanId}, day {DayId})",
+                    absolutePath,
+                    exercise.Id,
+                    exercise.TrainingPlanId,
+                    exercise.TrainingDayId);
             }
 
             CleanupEmptyDirectories(Path.GetDirectoryName(absolutePath));

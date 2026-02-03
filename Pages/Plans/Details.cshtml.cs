@@ -93,6 +93,17 @@ public class DetailsModel : PageModel
             return RedirectToPage(new { id = planId });
         }
 
+        var exerciseCount = day.Exercises.Count;
+        var imageCount = day.Exercises.Sum(e => e.Images.Count);
+
+        _logger.LogInformation(
+            "Deleting day {DayId} from plan {PlanId} for user {UserId} with {ExerciseCount} exercises, {ImageCount} images",
+            day.Id,
+            plan.Id,
+            userId,
+            exerciseCount,
+            imageCount);
+
         foreach (var exercise in day.Exercises.ToList())
         {
             await DeleteExerciseImagesAsync(exercise);
@@ -425,7 +436,16 @@ public class DetailsModel : PageModel
 
         if (input.Image != null && input.Image.Length > 0)
         {
-            await ReplaceExerciseImageAsync(userId, input, exercise);
+            var imageInfo = await ReplaceExerciseImageAsync(userId, input, exercise);
+            _logger.LogInformation(
+                "Uploaded image {ImageId} ({FileName}, {SizeBytes} bytes) for exercise {ExerciseId} in day {DayId} plan {PlanId} (user {UserId})",
+                imageInfo.Id,
+                imageInfo.OriginalFileName,
+                imageInfo.SizeBytes,
+                exercise.Id,
+                day.Id,
+                day.TrainingPlanId,
+                userId);
         }
 
         day.TrainingPlan!.UpdatedAt = DateTime.UtcNow;
@@ -541,7 +561,7 @@ public class DetailsModel : PageModel
     }
 
 
-    private async Task ReplaceExerciseImageAsync(string userId, ExerciseInputModel input, Exercise exercise)
+    private async Task<ExerciseImage> ReplaceExerciseImageAsync(string userId, ExerciseInputModel input, Exercise exercise)
     {
         await DeleteExerciseImagesAsync(exercise);
 
@@ -583,6 +603,8 @@ public class DetailsModel : PageModel
         exercise.Images.Clear();
         exercise.Images.Add(exerciseImage);
         _db.ExerciseImages.Add(exerciseImage);
+
+        return exerciseImage;
     }
 
     private Task DeleteExerciseImagesAsync(Exercise exercise)
@@ -605,11 +627,26 @@ public class DetailsModel : PageModel
                 try
                 {
                     System.IO.File.Delete(absolutePath);
+                    _logger.LogInformation(
+                        "Deleted image file {ImagePath} for exercise {ExerciseId} (plan {PlanId}, day {DayId})",
+                        absolutePath,
+                        exercise.Id,
+                        exercise.TrainingPlanId,
+                        exercise.TrainingDayId);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Failed to delete image {ImagePath}", absolutePath);
                 }
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Expected image file missing at {ImagePath} for exercise {ExerciseId} (plan {PlanId}, day {DayId})",
+                    absolutePath,
+                    exercise.Id,
+                    exercise.TrainingPlanId,
+                    exercise.TrainingDayId);
             }
 
             CleanupEmptyDirectories(Path.GetDirectoryName(absolutePath));

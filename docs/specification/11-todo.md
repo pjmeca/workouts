@@ -63,8 +63,8 @@ This checklist tracks what is needed to complete the app. Update it whenever a t
 ## Logging and error handling
 - [x] Serilog request logging + daily file logs
 - [x] Basic error page
-- [ ] Log image upload/delete success + failures
-- [ ] Log reorder operations
+- [x] Log image upload/delete success + failures
+- [x] Log reorder operations
 
 ## Security & validation
 - [x] Server-side validation for plan create/edit
