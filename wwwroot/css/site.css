@@ -230,6 +230,10 @@ body.app-body {
 .training-description {
     max-width: 640px;
     margin-bottom: 0;
+    white-space: pre-wrap;
+    text-align: left;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .training-timer {
@@ -246,6 +250,7 @@ body.app-body {
 
 .training-notes {
     margin-top: 1.25rem;
+    white-space: pre-wrap;
 }
 
 .training-rest {

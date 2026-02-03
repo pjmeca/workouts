@@ -346,7 +346,7 @@
 
             repsEl.textContent = `× ${exercise.repetitions}`;
             timerEl.textContent = `Elapsed: ${formatTime(elapsedSeconds)}`;
-            setText(notesEl, exercise.notes ? `Notes: ${exercise.notes}` : "");
+            setText(notesEl, exercise.notes ? `Notes:\n${exercise.notes}` : "");
         };
 
         const updateRestView = (step) => {
@@ -649,6 +649,11 @@
                     return;
                 }
 
+                if (["image/gif", "image/svg+xml"].includes(file.type)) {
+                    resolve(file);
+                    return;
+                }
+
                 const img = new Image();
                 img.onload = () => {
                     const ratio = Math.min(1, maxSize / Math.max(img.width, img.height));
@@ -661,6 +666,7 @@
                         return;
                     }
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const outputType = ["image/png", "image/webp"].includes(file.type) ? file.type : "image/jpeg";
                     canvas.toBlob(
                         (blob) => {
                             if (!blob) {
@@ -670,8 +676,8 @@
                             const compressed = new File([blob], file.name, { type: blob.type });
                             resolve(compressed);
                         },
-                        "image/jpeg",
-                        quality
+                        outputType,
+                        outputType === "image/jpeg" ? quality : undefined
                     );
                 };
                 img.onerror = reject;
