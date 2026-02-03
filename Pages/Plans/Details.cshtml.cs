@@ -547,7 +547,9 @@ public class DetailsModel : PageModel
 
         var imageId = Guid.NewGuid();
         var extension = Path.GetExtension(input.Image!.FileName);
-        var safeExtension = string.IsNullOrWhiteSpace(extension) ? ".img" : extension.ToLowerInvariant();
+        var safeExtension = input.Image.ContentType == "image/webp"
+            ? ".webp"
+            : string.IsNullOrWhiteSpace(extension) ? ".img" : extension.ToLowerInvariant();
         var storedFileName = $"{imageId}{safeExtension}";
 
         var relativePath = Path.Combine(userId, input.PlanId.ToString(), input.DayId.ToString(), storedFileName)

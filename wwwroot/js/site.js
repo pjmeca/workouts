@@ -649,11 +649,6 @@
                     return;
                 }
 
-                if (["image/gif", "image/svg+xml"].includes(file.type)) {
-                    resolve(file);
-                    return;
-                }
-
                 const img = new Image();
                 img.onload = () => {
                     const ratio = Math.min(1, maxSize / Math.max(img.width, img.height));
@@ -666,21 +661,23 @@
                         return;
                     }
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const outputType = ["image/png", "image/webp"].includes(file.type) ? file.type : "image/jpeg";
                     canvas.toBlob(
                         (blob) => {
                             if (!blob) {
                                 resolve(file);
                                 return;
                             }
-                            const compressed = new File([blob], file.name, { type: blob.type });
+                            const baseName = file.name.replace(/\.[^/.]+$/, "");
+                            const webpName = `${baseName || "image"}.webp`;
+                            const compressed = new File([blob], webpName, { type: "image/webp" });
                             resolve(compressed);
                         },
-                        outputType,
-                        outputType === "image/jpeg" ? quality : undefined
+                        "image/webp",
+                        quality
                     );
+                    URL.revokeObjectURL(img.src);
                 };
-                img.onerror = reject;
+                img.onerror = () => resolve(file);
                 img.src = URL.createObjectURL(file);
             });
 
