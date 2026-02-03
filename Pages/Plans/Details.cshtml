@@ -41,7 +41,13 @@ else
                                 <button class="btn btn-outline-secondary btn-sm day-move" type="submit" data-delta="1" aria-label="Move day down">↓</button>
                             </form>
                         </div>
-                        <h2 class="h5 mb-0">@day.Name</h2>
+                        <div>
+                            <h2 class="h5 mb-0">@day.Name</h2>
+                            @if (!string.IsNullOrWhiteSpace(day.Notes))
+                            {
+                                <p class="text-muted mb-0">@day.Notes</p>
+                            }
+                        </div>
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
                         <a class="btn btn-sm btn-outline-primary" asp-page="/Plans/Play" asp-route-planId="@Model.Plan.Id" asp-route-dayId="@day.Id" aria-label="Start training">▶</a>
