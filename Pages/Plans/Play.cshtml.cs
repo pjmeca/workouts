@@ -90,8 +90,9 @@ public class PlayModel : PageModel
                         id = PlanId,
                         planId = PlanId,
                         dayId = DayId,
-                        exerciseId = e.Id
-                    }) ?? $"/Plans/Details/{PlanId}?handler=ExerciseImage&planId={PlanId}&dayId={DayId}&exerciseId={e.Id}";
+                        exerciseId = e.Id,
+                        v = image.Id
+                    }) ?? $"/Plans/Details/{PlanId}?handler=ExerciseImage&planId={PlanId}&dayId={DayId}&exerciseId={e.Id}&v={image.Id}";
 
                 return new ExerciseRunDto(
                     e.Id,

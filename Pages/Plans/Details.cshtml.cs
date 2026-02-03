@@ -335,8 +335,9 @@ public class DetailsModel : PageModel
                     id = planId,
                     planId,
                     dayId,
-                    exerciseId = exercise.Id
-                }) ?? $"/Plans/Details/{planId}?handler=ExerciseImage&planId={planId}&dayId={dayId}&exerciseId={exercise.Id}";
+                    exerciseId = exercise.Id,
+                    v = image.Id
+                }) ?? $"/Plans/Details/{planId}?handler=ExerciseImage&planId={planId}&dayId={dayId}&exerciseId={exercise.Id}&v={image.Id}";
             }
 
             ViewData["FormTitle"] = "Edit exercise";
@@ -383,8 +384,9 @@ public class DetailsModel : PageModel
                         id = input.PlanId,
                         planId = input.PlanId,
                         dayId = input.DayId,
-                        exerciseId = existing!.Id
-                    }) ?? $"/Plans/Details/{input.PlanId}?handler=ExerciseImage&planId={input.PlanId}&dayId={input.DayId}&exerciseId={existing!.Id}";
+                        exerciseId = existing!.Id,
+                        v = image.Id
+                    }) ?? $"/Plans/Details/{input.PlanId}?handler=ExerciseImage&planId={input.PlanId}&dayId={input.DayId}&exerciseId={existing!.Id}&v={image.Id}";
                 }
             }
 
@@ -523,6 +525,9 @@ public class DetailsModel : PageModel
         }
 
         var contentType = string.IsNullOrWhiteSpace(image.ContentType) ? "application/octet-stream" : image.ContentType;
+        Response.Headers.CacheControl = "no-store, no-cache, must-revalidate";
+        Response.Headers.Pragma = "no-cache";
+        Response.Headers.Expires = "0";
         return PhysicalFile(absolutePath, contentType);
     }
 
